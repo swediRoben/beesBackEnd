@@ -1,4 +1,6 @@
 const Projet = require("../models/projet");
+const { Op } = require("sequelize");
+
 
 // ✅ Créer un projet
 exports.createProjet = async(req, res) => {
@@ -23,11 +25,17 @@ exports.getAllProjets = async(req, res) => {
         let { page, size } = req.query;
         page = page ? parseInt(page) : 1; // page par défaut = 1
         size = size ? parseInt(size) : 10; // taille par défaut = 10
+        const secteur = req.query.secteur != null || req.query.secteur != 1 ? req.query.secteur : null;
 
         const offset = (page - 1) * size;
         const limit = size;
+        let where = {};
+        if (secteur != null) where.secteur = {
+            [Op.eq]: `${secteur}`
+        }
 
         const { count, rows } = await Projet.findAndCountAll({
+            where,
             limit,
             offset,
             order: [

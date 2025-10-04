@@ -1,4 +1,5 @@
 const Publication = require("../models/publication");
+const { Op } = require("sequelize");
 
 // ✅ Ajouter une publication
 exports.createPublication = async(req, res) => {
@@ -25,11 +26,20 @@ exports.getAllPublications = async(req, res) => {
         // récupérer page et size depuis les query params, avec valeurs par défaut
         const page = parseInt(req.query.page) || 1;
         const size = parseInt(req.query.size) || 10;
+        const type = req.query.type != null || req.query.type != 1 ? req.query.type : null;
+
         const offset = (page - 1) * size;
         const limit = size;
 
+        let where = {};
+        if (type) where.type = {
+            [Op.eq]: `${type}`
+        }
+
+
         // requête avec pagination
         const { count, rows } = await Publication.findAndCountAll({
+            where,
             order: [
                 ["date", "DESC"]
             ],
