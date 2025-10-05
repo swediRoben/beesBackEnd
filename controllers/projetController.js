@@ -23,7 +23,7 @@ exports.createProjet = async(req, res) => {
 exports.getAllProjets = async(req, res) => {
     try {
         let { page, size } = req.query;
-        page = page ? parseInt(page) : 1; // page par défaut = 1
+        page = page ? parseInt(page) : 1; // page par défaut = 1 
         size = size ? parseInt(size) : 10; // taille par défaut = 10
         const secteur = req.query.secteur != null || req.query.secteur != 1 ? req.query.secteur : null;
 
