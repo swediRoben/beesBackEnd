@@ -26,7 +26,7 @@ const Projet = db.define("projet", {
     },
     secteur: {
         type: DataTypes.ENUM,
-        values: ['EDUCATION', 'SENTE', 'ENVIRONEMENT'],
+        values: ['EDUCATION', 'SANTE', 'ENVIRONNEMENT'],
         allowNull: false
     },
     status: {
