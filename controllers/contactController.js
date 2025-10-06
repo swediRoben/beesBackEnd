@@ -75,6 +75,7 @@ exports.createContact = async(req, res) => {
         //     text: `Tu as reçu un message :\n\nNom: ${nom}\nEmail: ${email}\nMessage: ${message}`,
         // };
 
+
         // // Send email
         // await transporter.sendMail(mailOptions);
 
