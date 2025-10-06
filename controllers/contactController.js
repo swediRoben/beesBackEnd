@@ -1,4 +1,5 @@
 const Contact = require('../models/contact');
+require("dotenv").config();
 const { Op } = require('sequelize');
 
 // ✅ Get all with pagination + sort
@@ -57,7 +58,25 @@ exports.createContact = async(req, res) => {
         if (!nom || !email || !subject || !message) {
             return res.status(400).json({ message: 'Les champs nom, mail, content et sujet sont obligatoires' });
         }
+        // // Create transporter (example with Gmail)
+        // let transporter = nodemailer.createTransport({
+        //     service: "gmail",
+        //     auth: {
+        //         user: process.env.MAIL, // ton email
+        //         pass: process.env.MAILPASSWORD, // mot de passe application Gmail
+        //     },
+        // });
 
+        // // Email options
+        // let mailOptions = {
+        //     from: email, // l’adresse du client qui envoie le message
+        //     to: process.env.MAIL, // toi, tu reçois le mail
+        //     subject: subject,
+        //     text: `Tu as reçu un message :\n\nNom: ${nom}\nEmail: ${email}\nMessage: ${message}`,
+        // };
+
+        // // Send email
+        // await transporter.sendMail(mailOptions);
 
         const newContact = await Contact.create({ nom, email, subject, message, condition });
 

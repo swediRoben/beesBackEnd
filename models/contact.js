@@ -21,7 +21,7 @@ const Contact = sequelize.define('contact', {
     },
     subject: {
         type: DataTypes.ENUM,
-        values: ['DEMENDE GENERALE', 'DEVENIR BENEVOLE', 'PARTENARIAT', 'DON ET FINANCEMENT', 'DEMENDE DE PRESE', 'AUTRES'],
+        values: ['DEMENDE_GENERALE', 'DEVENIR_BENEVOLE', 'PARTENARIAT', 'DON_ET_FINANCEMENT', 'DEMENDE_DE_PRESE', 'AUTRES'],
         allowNull: false
     },
     condition: {
