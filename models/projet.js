@@ -49,7 +49,7 @@ const Projet = db.define("projet", {
     },
     avencement: {
         type: DataTypes.FLOAT,
-        allowNull: false,
+        allowNull: true,
         comment: 'pourcentage'
     },
     debut: {

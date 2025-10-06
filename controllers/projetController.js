@@ -5,10 +5,10 @@ const { Op } = require("sequelize");
 // ✅ Créer un projet
 exports.createProjet = async(req, res) => {
     try {
-        const { title, contenu, secteur, avencement } = req.body;
+        const { title, contenu, secteur } = req.body;
 
         // Vérification des champs obligatoires
-        if (!title || !contenu || !secteur || avencement === undefined) {
+        if (!title || !contenu || !secteur) {
             return res.status(400).json({ message: "Champs obligatoires manquants !" });
         }
 
