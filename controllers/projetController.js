@@ -1,18 +1,47 @@
 const Projet = require("../models/projet");
 const { Op } = require("sequelize");
+const upload = require('../middleware/upload');
+const path = require('path');
+const fs = require('fs');
 
 
 // ✅ Créer un projet
 exports.createProjet = async(req, res) => {
-    try {
-        const { title, contenu, secteur } = req.body;
+    try { 
+        const { title,typeFichier,urlVideo, contenu, secteur,status,beneficier,budget,devise,avencement,debut,fin } = req.body;
 
         // Vérification des champs obligatoires
         if (!title || !contenu || !secteur) {
             return res.status(400).json({ message: "Champs obligatoires manquants !" });
         }
 
-        const projet = await Projet.create(req.body);
+         let fichierNom = null; 
+            if (typeFichier === "VIDEO") {
+            fichierNom = urlVideo; // pas de fichier uploadé
+            } else {
+            // Multer uploadé
+            if (req.file) {
+                fichierNom = req.file.filename;
+            } else {
+                return res.status(400).json({ message: "Fichier requis pour images/PDF" });
+            }
+            }
+
+        const projet = await Projet.create({
+            title,
+            typeFichier,
+            urlVideo,
+            contenu,
+            secteur,
+            status,
+            beneficier,
+            budget,
+            devise,
+            avencement,
+            debut,
+            fin,
+            fichier: fichierNom
+        });
         res.status(201).json(projet);
     } catch (error) {
         res.status(500).json({ message: "Erreur serveur", error });
@@ -69,9 +98,34 @@ exports.getProjetById = async(req, res) => {
 exports.updateProjet = async(req, res) => {
     try {
         const projet = await Projet.findByPk(req.params.id);
+         const { title,typeFichier,urlVideo, contenu, secteur,status,beneficier,budget,devise,avencement,debut,fin } = req.body;
         if (!projet) return res.status(404).json({ message: "Projet non trouvé" });
 
-        await projet.update(req.body);
+        let fichierNom = publication.fichier; // 🟡 par défaut, garder l'ancien fichier
+
+        if (typeFichier === "VIDEO") {
+        fichierNom = urlVideo;
+        } else if (typeFichier === "IMAGES" || typeFichier === "PDF") {
+             if (req.file) {
+                fichierNom = req.file.filename; 
+             }
+        }
+
+        await projet.update({
+            title,
+            typeFichier,
+            urlVideo,
+            contenu,
+            secteur,
+            status,
+            beneficier,
+            budget,
+            devise,
+            avencement,
+            debut,
+            fin,
+            fichier: fichierNom
+        });
         res.status(200).json(projet);
     } catch (error) {
         res.status(500).json({ message: "Erreur serveur", error });
@@ -83,6 +137,14 @@ exports.deleteProjet = async(req, res) => {
     try {
         const projet = await Projet.findByPk(req.params.id);
         if (!projet) return res.status(404).json({ message: "Projet non trouvé" });
+
+          if (projet.fichier) {
+                    const filePath = path.join(__dirname, "../middleware/uploads", projet.fichier);
+                    if (fs.existsSync(filePath)) {
+                        fs.unlinkSync(filePath); 
+                        console.log(`📂 Fichier "${projet.fichier}" supprimé`);
+                    }
+           } 
 
         await projet.destroy();
         res.status(200).json({ message: "Projet supprimé avec succès" });
