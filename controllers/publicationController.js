@@ -1,15 +1,31 @@
 const Publication = require("../models/publication");
 const { Op } = require("sequelize");
+const upload = require('../middleware/upload');
+const path = require('path');
+const fs = require('fs');
 
 // ✅ Ajouter une publication
 exports.createPublication = async(req, res) => {
     try {
-        const { title, contenu, fichier, typeFichier, type } = req.body;
+        const { title, contenu,urlVideo, typeFichier, type } = req.body;
+
+        let fichierNom = null; 
+            if (typeFichier === "VIDEO") {
+            fichierNom = urlVideo; // pas de fichier uploadé
+            } else {
+            // Multer uploadé
+            if (req.file) {
+                fichierNom = req.file.filename;
+            } else {
+                return res.status(400).json({ message: "Fichier requis pour images/PDF" });
+            }
+            }
+       
 
         const publication = await Publication.create({
             title,
             contenu,
-            fichier,
+            fichier: fichierNom,
             typeFichier,
             type
         });
@@ -27,7 +43,7 @@ exports.getAllPublications = async(req, res) => {
         const page = parseInt(req.query.page) || 1;
         const size = parseInt(req.query.size) || 10;
         const type = req.query.type != null || req.query.type != 1 ? req.query.type : null;
-
+         
         const offset = (page - 1) * size;
         const limit = size;
 
@@ -80,7 +96,16 @@ exports.getPublicationById = async(req, res) => {
 exports.updatePublication = async(req, res) => {
     try {
         const { id } = req.params;
-        const { title, contenu, fichier, typeFichier, type } = req.body;
+        const { title, contenu, urlVideo, typeFichier, type } = req.body;
+        let fichierNom = publication.fichier; // 🟡 par défaut, garder l'ancien fichier
+
+        if (typeFichier === "VIDEO") {
+        fichierNom = urlVideo;
+        } else if (typeFichier === "IMAGES" || typeFichier === "PDF") {
+             if (req.file) {
+                fichierNom = req.file.filename; 
+             }
+        }
 
         const publication = await Publication.findByPk(id);
         if (!publication) {
@@ -89,7 +114,7 @@ exports.updatePublication = async(req, res) => {
 
         publication.title = title || publication.title;
         publication.contenu = contenu || publication.contenu;
-        publication.fichier = fichier || publication.fichier;
+        publication.fichier = fichierNom || publication.fichier;
         publication.typeFichier = typeFichier || publication.typeFichier;
         publication.type = type || publication.type;
 
@@ -99,21 +124,43 @@ exports.updatePublication = async(req, res) => {
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
-};
+}; 
 
-// ✅ Supprimer une publication
-exports.deletePublication = async(req, res) => {
+exports.deletePublication = async (req, res) => {
     try {
         const { id } = req.params;
         const publication = await Publication.findByPk(id);
 
         if (!publication) {
             return res.status(404).json({ message: "Publication introuvable" });
-        }
-
+        } 
+        if (publication.fichier) {
+            const filePath = path.join(__dirname, "../middleware/uploads", publication.fichier);
+            if (fs.existsSync(filePath)) {
+                fs.unlinkSync(filePath); 
+                console.log(`📂 Fichier "${publication.fichier}" supprimé`);
+            }
+        } 
         await publication.destroy();
-        res.json({ message: "Publication supprimée avec succès" });
+
+        res.json({ message: "Publication et fichier supprimés avec succès" });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 };
+
+// exports.deletePublication = async(req, res) => {
+//     try {
+//         const { id } = req.params;
+//         const publication = await Publication.findByPk(id);
+
+//         if (!publication) {
+//             return res.status(404).json({ message: "Publication introuvable" });
+//         }
+
+//         await publication.destroy();
+//         res.json({ message: "Publication supprimée avec succès" });
+//     } catch (error) {
+//         res.status(500).json({ error: error.message });
+//     }
+// };

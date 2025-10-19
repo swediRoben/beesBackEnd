@@ -11,6 +11,8 @@ const donationRoutes = require('./routes/donationRoutes');
 const sendMailRoutes = require('./routes/sendMailRouter');
 const authRoutes = require('./routes/userRoutes');
 const sequelize = require('./db');
+const upload = require('./middleware/upload');
+const path = require('path'); 
 
 const app = express();
 const port = 3000; // Utilise le port défini dans .env ou 3000 par défaut
@@ -30,6 +32,20 @@ app.use('/api/cordonnees', cordonneeRoutes);
 app.use('/api/projets', projetRoutes);
 app.use('/api/donation', donationRoutes);
 app.use('/api/mail', sendMailRoutes);
+
+// app.post('/upload', upload.single('image'), (req, res) => {
+//   if (!req.file) {
+//     return res.status(400).send('Aucune image envoyée');
+//   }
+
+//   res.json({
+//     message: 'Image enregistrée avec succès !',
+//     filePath: `/uploads/${req.file.filename}`
+//   });
+// });
+
+// 📂 Rendre le dossier uploads accessible publiquement 
+app.use('/uploads', express.static('./middleware/uploads'));
 
 // ✅ Route de test
 app.get('/', (req, res) => {
